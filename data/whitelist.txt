@@ -1,0 +1,2 @@
+# Whitelisted IPs (one per line)
+# IPs listed here will be excluded from anomaly detection

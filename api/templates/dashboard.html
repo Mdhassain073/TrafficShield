@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrafficShield Dashboard</title>
+  <meta http-equiv="refresh" content="10">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>🛡️ TrafficShield Dashboard</h1>
+  <p class="subtitle">AI-Powered Network Traffic Anomaly Detection</p>
+  <p class="last-updated">Last updated: {{ alerts[0][3] if alerts else "No alerts yet" }}</p>
+
+  <div class="actions-bar">
+    <form action="/upload-log" method="post" enctype="multipart/form-data" class="inline-form">
+      <label for="log-upload">📁 Upload Log:</label>
+      <input type="file" name="file" id="log-upload" accept=".log,.txt">
+      <button type="submit">Upload</button>
+    </form>
+
+    <a href="/view-log" target="_blank" class="btn">📄 View access.log</a>
+    <a href="/export-alerts" class="btn">📤 Export Alerts CSV</a>
+  </div>
+
+  <h2>⚠️ Suspicious IPs ({{ alerts|length }} alerts)</h2>
+
+  {% if alerts %}
+  <table>
+    <thead>
+      <tr>
+        <th>IP Address</th>
+        <th>Anomaly Score</th>
+        <th>Reason</th>
+        <th>Timestamp</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ip, score, reason, time in alerts %}
+      <tr>
+        <td>{{ ip }}</td>
+        <td class="{% if score >= 0.95 %}score-critical{% elif score >= 0.8 %}score-warning{% else %}score-normal{% endif %}">
+          {{ "%.3f"|format(score) }}
+        </td>
+        <td>{{ reason }}</td>
+        <td>{{ time }}</td>
+        <td class="actions">
+          <form action="/block" method="post" style="display:inline;">
+            <input type="hidden" name="ip" value="{{ ip }}">
+            <button type="submit" class="btn-block">❌ Block</button>
+          </form>
+          <form action="/whitelist" method="post" style="display:inline;">
+            <input type="hidden" name="ip" value="{{ ip }}">
+            <button type="submit" class="btn-whitelist">✅ Whitelist</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="no-alerts">✅ No suspicious activity detected. All clear!</p>
+  {% endif %}
+
+  <h2>📈 Anomaly Score Chart</h2>
+  <div class="chart-container">
+    <canvas id="chart"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/static/script.js"></script>
+</body>
+</html>

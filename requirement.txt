@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+jinja2
+aiofiles
+python-multipart
+numpy
+pandas
+scikit-learn
+requests
+python-dotenv
